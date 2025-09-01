@@ -180,12 +180,12 @@ function createSpicySection(): void {
 
   mainContent.appendChild(spicySection);
 
-  // generate gallery items with BASE_URL
+  // generate gallery items with correct paths
   const gallery = document.getElementById('romantic-gallery');
   if (gallery) {
     romanticMedia.forEach((media) => {
       const item = document.createElement(media.type === 'image' ? 'img' : 'video');
-      item.src = `${import.meta.env.BASE_URL}assets/spicy/${media.src}`;
+      item.src = `/assets/spicy/${media.src}`;
       item.className = 'romantic-media';
       if (media.type === 'image') (item as HTMLImageElement).alt = media.caption;
       else (item as HTMLVideoElement).controls = true;
@@ -215,7 +215,7 @@ function initializeWebsite(): void {
 const playMusicBtn = document.getElementById('play-music');
 const pauseMusicBtn = document.getElementById('pause-music');
 if (playMusicBtn && pauseMusicBtn) {
-  const audio = new Audio(`${import.meta.env.BASE_URL}assets/audio/Albumaty.Com_tww_lyt_hsyny.mp3`);
+  const audio = new Audio('/assets/audio/Albumaty.Com_tww_lyt_hsyny.mp3');
   audio.loop = true;
 
   playMusicBtn.addEventListener('click', () => {
