@@ -1,3 +1,23 @@
+:root {
+  --color-surface: oklch(96% 0.015 50);
+  --color-surface-raised: oklch(99% 0.006 50);
+  --color-surface-alt: oklch(92% 0.022 28);
+  --color-accent: oklch(57% 0.19 24);
+  --color-accent-deep: oklch(38% 0.13 345);
+  --color-accent-light: oklch(90% 0.07 24);
+  --color-text: oklch(21% 0.025 30);
+  --color-text-muted: oklch(52% 0.018 30);
+  --color-border: oklch(87% 0.018 40);
+  --color-arabic: oklch(40% 0.14 345);
+  --color-shadow: oklch(21% 0.025 30 / 0.08);
+  --color-shadow-strong: oklch(21% 0.025 30 / 0.16);
+  --font-display: 'Gloock', Georgia, serif;
+  --font-body: 'Jost', 'Segoe UI', system-ui, sans-serif;
+  --font-arabic: 'Amiri', 'Scheherazade', 'Traditional Arabic', sans-serif;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px; --space-16: 64px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -5,11 +25,9 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(45deg, #ff9a9e, #fecfef, #fecfef, #ff9a9e);
-  background-size: 400% 400%;
-  animation: gradientShift 8s ease infinite;
-  color: #333;
+  font-family: var(--font-body);
+  background-color: var(--color-surface);
+  color: var(--color-text);
   overflow-x: hidden;
   position: relative;
 }
@@ -198,10 +216,8 @@ section {
 section h2 {
   font-size: 2.5rem;
   margin-bottom: 2rem;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-display);
+  color: var(--color-accent-deep);
 }
 
 /* Love Letter Section - FIXED FOR ARABIC */
@@ -440,10 +456,10 @@ section h2 {
 }
 
 /* Special effects for memory items */
-.memory-item:nth-child(1) { border-left: 5px solid #ff6b6b; }
-.memory-item:nth-child(2) { border-left: 5px solid #4ecdc4; }
-.memory-item:nth-child(3) { border-left: 5px solid #45b7d1; }
-.memory-item:nth-child(4) { border-left: 5px solid #f9ca24; }
+.memory-item:nth-child(1) { border: 2px solid rgba(255, 107, 107, 0.3); }
+.memory-item:nth-child(2) { border: 2px solid rgba(78, 205, 196, 0.3); }
+.memory-item:nth-child(3) { border: 2px solid rgba(69, 183, 209, 0.3); }
+.memory-item:nth-child(4) { border: 2px solid rgba(249, 202, 36, 0.3); }
 
 .memory-item:nth-child(1):hover { box-shadow: 0 25px 50px rgba(255, 107, 107, 0.3); }
 .memory-item:nth-child(2):hover { box-shadow: 0 25px 50px rgba(78, 205, 196, 0.3); }

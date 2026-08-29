@@ -38,6 +38,7 @@ export function floatingLoveNotes(messages: string[], frequency = 2000) {
 // Cursor trail hearts
 export function cursorHearts() {
   document.addEventListener('mousemove', e => {
+    if (Math.random() > 0.06) return;
     const heart = document.createElement('div');
     heart.textContent = '💖';
     heart.style.position = 'absolute';
@@ -71,7 +72,13 @@ export function heartSky(names: string[]) {
   canvas.style.top = '0';
   canvas.style.left = '0';
   canvas.style.pointerEvents = 'none';
+  canvas.setAttribute('aria-hidden', 'true');
   document.body.appendChild(canvas);
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
 
   const ctx = canvas.getContext('2d')!;
 
@@ -87,6 +94,7 @@ export function heartSky(names: string[]) {
   }
 
   function animateHeartSky() {
+    if (!document.hidden) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let i = 0; i < names.length; i++) {
       const x = canvas.width / 2 + Math.sin(Date.now() / 1000 + i) * 100;
@@ -97,6 +105,7 @@ export function heartSky(names: string[]) {
       ctx.shadowColor = 'black';
       ctx.shadowBlur = 4;
       ctx.fillText(names[i], x - 15, y - 15);
+    }
     }
     requestAnimationFrame(animateHeartSky);
   }

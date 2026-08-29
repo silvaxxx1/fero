@@ -181,8 +181,8 @@ function typeLoveLetterEnhanced() {
   const element = document.getElementById('letter-text');
   if (!element) return;
   
-  // Add Arabic text class for proper styling
   element.classList.add('arabic-text');
+  element.setAttribute('lang', 'ar');
   
   let messageIndex = 0;
   let isTyping = false;
@@ -302,28 +302,205 @@ function initializeWebsite() {
   setTimeout(showEnhancedConfetti, 1000);
 }
 
-// ===== Audio Controls (FIXED PATHS) =====
+// ===== Audio Controls (SMOOTH UI) =====
 const playMusicBtn = document.getElementById('play-music');
 const pauseMusicBtn = document.getElementById('pause-music');
+
 if (playMusicBtn && pauseMusicBtn) {
-  // Use relative path that Vite will handle correctly
-  const audio = new Audio(getAssetPath('assets/audio/Albumaty.Com_tww_lyt_hsyny.mp3'));
+  // Create audio element
+  const audio = new Audio();
   audio.loop = true;
-
-  playMusicBtn.addEventListener('click', () => {
-    audio.play().catch(error => {
-      console.log('Audio play failed:', error);
-      // Optionally show user-friendly message
+  
+  // Define your songs
+  const songs = [
+    { 
+      src: getAssetPath('assets/audio/Albumaty.Com_tww_lyt_hsyny.mp3'), 
+      name: '💕 Our Love Song' 
+    },
+    { 
+      src: getAssetPath('assets/audio/jelad.mp3'), 
+      name: '🎵 JELAD' 
+    }
+  ];
+  
+  let currentSongIndex = 0;
+  audio.src = songs[0].src;
+  
+  // Hide the original pause button (we'll use toggle)
+  pauseMusicBtn.style.display = 'none';
+  
+  // Transform play button to toggle
+  playMusicBtn.textContent = '▶️ Play Music';
+  playMusicBtn.style.minWidth = '140px';
+  
+  // Create song switcher as simple buttons (cleaner than dropdown)
+  const songSwitcher = document.createElement('div');
+  songSwitcher.style.cssText = `
+    display: inline-flex;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.1);
+    padding: 0.3rem;
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    margin: 0.3rem;
+  `;
+  
+  songs.forEach((song, index) => {
+    const btn = document.createElement('button');
+    btn.textContent = index === 0 ? '💕' : '🎵';
+    btn.title = song.name;
+    btn.style.cssText = `
+      padding: 0.4rem 0.8rem;
+      border: 2px solid ${index === currentSongIndex ? '#ff6b6b' : 'transparent'};
+      border-radius: 20px;
+      background: ${index === currentSongIndex ? 'rgba(255,107,107,0.3)' : 'transparent'};
+      color: ${index === currentSongIndex ? '#ff6b6b' : '#aaa'};
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    `;
+    
+    btn.addEventListener('mouseenter', () => {
+      btn.style.transform = 'scale(1.1)';
     });
-    createInteractiveHeart(
-      playMusicBtn.offsetLeft + playMusicBtn.offsetWidth / 2,
-      playMusicBtn.offsetTop + playMusicBtn.offsetHeight / 2
-    );
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = 'scale(1)';
+    });
+    
+    btn.addEventListener('click', () => {
+      if (index !== currentSongIndex) {
+        currentSongIndex = index;
+        audio.src = songs[currentSongIndex].src;
+        
+        // Update button styles
+        const allBtns = songSwitcher.querySelectorAll('button');
+        allBtns.forEach((b, i) => {
+          b.style.borderColor = i === index ? '#ff6b6b' : 'transparent';
+          b.style.background = i === index ? 'rgba(255,107,107,0.3)' : 'transparent';
+          b.style.color = i === index ? '#ff6b6b' : '#aaa';
+        });
+        
+        // If music is playing, switch to new song
+        if (!audio.paused) {
+          audio.play().catch(error => {
+            console.log('Audio play failed:', error);
+          });
+        }
+        
+        // Show notification
+        showSongNotification(songs[currentSongIndex].name);
+        
+        // Update play button
+        if (!audio.paused) {
+          playMusicBtn.textContent = `⏸️ ${songs[currentSongIndex].name}`;
+        } else {
+          playMusicBtn.textContent = `▶️ ${songs[currentSongIndex].name}`;
+        }
+      }
+    });
+    
+    songSwitcher.appendChild(btn);
   });
-
-  pauseMusicBtn.addEventListener('click', () => {
-    audio.pause();
+  
+  // Insert song switcher
+  const controlButtons = document.querySelector('.control-buttons');
+  if (controlButtons) {
+    controlButtons.insertBefore(songSwitcher, playMusicBtn.nextSibling);
+  }
+  
+  // Toggle play/pause
+  playMusicBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play().catch(error => {
+        console.log('Audio play failed:', error);
+      });
+      playMusicBtn.textContent = `⏸️ ${songs[currentSongIndex].name}`;
+    } else {
+      audio.pause();
+      playMusicBtn.textContent = `▶️ ${songs[currentSongIndex].name}`;
+    }
+    
+    // Hearts effect
+    const r = playMusicBtn.getBoundingClientRect();
+    createInteractiveHeart(r.left + r.width / 2, r.top + r.height / 2);
   });
+  
+  // Clean notification function
+  function showSongNotification(songName) {
+    // Remove any existing notification
+    const existing = document.querySelector('.song-notification');
+    if (existing) existing.remove();
+    
+    const notification = document.createElement('div');
+    notification.className = 'song-notification';
+    notification.style.cssText = `
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(15px);
+      color: white;
+      padding: 0.7rem 1.8rem;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      z-index: 9999;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      text-align: center;
+      border: 2px solid #ff6b6b;
+      letter-spacing: 0.5px;
+      pointer-events: none;
+    `;
+    notification.innerHTML = `🎵 ${songName}`;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.animation = 'fadeOut 0.5s ease';
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 500);
+    }, 2000);
+  }
+  
+  // Add CSS animations if not already present
+  if (!document.getElementById('audio-styles')) {
+    const style = document.createElement('style');
+    style.id = 'audio-styles';
+    style.textContent = `
+      @keyframes slideUp {
+        from { transform: translateX(-50%) translateY(50px); opacity: 0; }
+        to { transform: translateX(-50%) translateY(0); opacity: 1; }
+      }
+      @keyframes fadeOut {
+        from { opacity: 1; transform: translateX(-50%) translateY(0); }
+        to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      }
+      .control-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .control-buttons button,
+      .control-buttons div {
+        margin: 0.2rem !important;
+      }
+      #play-music {
+        transition: all 0.3s ease;
+      }
+      #play-music:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255,107,107,0.3);
+      }
+    `;
+    document.head.appendChild(style);
+  }
 }
 
 function createSpicySection() {
@@ -430,13 +607,10 @@ function generateRomanticGallery(mediaArray) {
     // Add special click effects
     romanticItem.addEventListener('click', () => {
       showRomanticConfetti();
-      
+      const rr = romanticItem.getBoundingClientRect();
       for (let i = 0; i < 10; i++) {
         setTimeout(() => {
-          createInteractiveHeart(
-            romanticItem.offsetLeft + Math.random() * romanticItem.offsetWidth,
-            romanticItem.offsetTop + Math.random() * romanticItem.offsetHeight
-          );
+          createInteractiveHeart(rr.left + Math.random() * rr.width, rr.top + Math.random() * rr.height);
         }, i * 100);
       }
     });
@@ -544,6 +718,18 @@ function showRomanticConfetti() {
   }
 }
 
+// ===== DYNAMIC BIRTHDAY MEMORY =====
+const now = new Date();
+const birthYear = 2003; // Fero's birth year
+const age = now.getFullYear() - birthYear;
+const isBirthday = now.getMonth() === 7 && now.getDate() === 31; // August 31
+const birthdayDate = new Date(now.getFullYear(), 7, 31);
+
+// Check if birthday has passed this year
+const hasPassed = now > birthdayDate;
+const displayYear = hasPassed ? now.getFullYear() + 1 : now.getFullYear();
+const displayAge = hasPassed ? age + 1 : age;
+
 const memoryItems = [
   {
     emoji: '✨',
@@ -568,10 +754,18 @@ const memoryItems = [
   },
   {
     emoji: '🎂',
-    title: 'Today - Your 22nd Birthday!',
-    date: 'August 31, 2025',
-    description: 'Celebrating the most amazing woman who fills my life with joy and love!',
-    arabicNote: 'عيد ميلاد سعيد يا حبيبة قلبي! 🎉'
+    title: isBirthday 
+      ? '🎉 TODAY IS YOUR BIRTHDAY! 🎂🎉' 
+      : `Your ${displayAge}th Birthday ${hasPassed ? 'Coming Soon' : 'is Here!'}`,
+    date: isBirthday 
+      ? `🎊 August 31, ${now.getFullYear()} - TODAY! 🎊` 
+      : `August 31, ${displayYear}`,
+    description: isBirthday 
+      ? '🎉 CELEBRATING THE MOST AMAZING WOMAN IN THE WORLD! HAPPY BIRTHDAY MY LOVE! 💖✨🎂'
+      : `Counting down to celebrate ${displayAge} years of you! Every moment with you is magic 💖✨`,
+    arabicNote: isBirthday 
+      ? '🎉 عيد ميلاد سعيد يا حبيبة قلبي! اليوم يومك! أنتِ كل شيء في حياتي 💖🎂'
+      : `🎉 عيد ميلاد سعيد يا حبيبة قلبي! قريباً ${displayAge} سنة من النور 💖`
   }
 ];
 
@@ -595,6 +789,8 @@ function createMemoryTimeline() {
     const memoryItem = document.createElement('div');
     memoryItem.className = 'memory-item';
     memoryItem.style.animationDelay = (index * 0.3) + 's';
+    memoryItem.setAttribute('role', 'button');
+    memoryItem.setAttribute('tabindex', '0');
     
     memoryItem.innerHTML = `
       <div class="memory-header">
@@ -603,22 +799,21 @@ function createMemoryTimeline() {
         <span class="memory-date">${memory.date}</span>
       </div>
       <p class="memory-description">${memory.description}</p>
-      <div class="memory-arabic">${memory.arabicNote}</div>
+      <div class="memory-arabic" lang="ar">${memory.arabicNote}</div>
     `;
     
     // Add special click effects for memories
     memoryItem.addEventListener('click', () => {
-      // Create memory-specific effects
       showEnhancedConfetti();
-      
-      // Create floating emojis for this memory
+      const mr = memoryItem.getBoundingClientRect();
+
       for (let i = 0; i < 10; i++) {
         setTimeout(() => {
           const emoji = document.createElement('div');
           emoji.textContent = memory.emoji;
           emoji.style.position = 'fixed';
-          emoji.style.left = (memoryItem.offsetLeft + Math.random() * memoryItem.offsetWidth) + 'px';
-          emoji.style.top = (memoryItem.offsetTop + Math.random() * memoryItem.offsetHeight) + 'px';
+          emoji.style.left = (mr.left + Math.random() * mr.width) + 'px';
+          emoji.style.top = (mr.top + Math.random() * mr.height) + 'px';
           emoji.style.fontSize = (Math.random() * 25 + 20) + 'px';
           emoji.style.pointerEvents = 'none';
           emoji.style.zIndex = '1000';
@@ -647,16 +842,255 @@ function createMemoryTimeline() {
   });
 }
 
-// ===== Original Images Gallery (FIXED PATHS) =====
+// ===== ORIGINAL IMAGES GALLERY =====
 const images = [
   { src: 'baby_fero.jpeg', caption: 'أجمل بداية 💖' },
   { src: 'fero_first.jpeg', caption: 'أول صورة منك 😘' },
   { src: 'fero_kiss.jpeg', caption: 'أحلى قبلة 💋' },
   { src: 'fero_sky.jpeg', caption: 'سحر السماء معاك ✨' },
   { src: 'pink_fero.jpeg', caption: 'وردتي الحلوة 🌸' },
-  { src: 'sleeping_beauty.jpeg', caption: 'الاميرة النايمة🌹' }
+  { src: 'sleeping_beauty.jpeg', caption: 'الاميرة النايمة 🌹' }
 ];
 
+// ===== GET MAIN CONTENT AND GALLERY SECTION ONCE =====
+const mainContent = document.querySelector('.main-content');
+const gallerySection = document.getElementById('gallery');
+
+// ===== GRADUATION SECTION - MY BABY GRADUATE =====
+const gradImages = [
+  { src: 'GRAD1.jpeg', caption: '🎓 حبيبتي الخريجة! 💖' },
+  { src: 'baby_grad.png', caption: 'كلبوظ خريج 🥹💖' },
+  { src: 'GRAD2.jpeg', caption: '🎓 مبروك التخرج يا دكتورة! 👩‍🎓✨' }
+  
+];
+
+// Create graduation section
+const gradSection = document.createElement('section');
+gradSection.id = 'graduation-section';
+gradSection.style.cssText = `
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #fdf6f0 0%, #f5e6d3 100%);
+  border-radius: 20px;
+  margin: 2rem 1rem;
+  border: 3px solid #c9a84c;
+  box-shadow: 0 0 40px rgba(201, 168, 76, 0.2);
+  position: relative;
+  overflow: hidden;
+`;
+
+gradSection.innerHTML = `
+  <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden;">
+    <div style="position: absolute; top: 10%; left: 5%; font-size: 3rem; opacity: 0.1;">🎓</div>
+    <div style="position: absolute; bottom: 20%; right: 8%; font-size: 4rem; opacity: 0.1;">📜</div>
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 8rem; opacity: 0.03;">⭐</div>
+  </div>
+  <div style="position: relative; z-index: 1;">
+    <h2 style="text-align: center; font-size: 2.2rem; color: #7b3f00; margin-bottom: 0.5rem;">
+      🎓 My Baby Graduate 🥹
+    </h2>
+    <p style="text-align: center; font-size: 1.2rem; color: #8b5a2b; margin-bottom: 2rem; font-style: italic;">
+      "So proud of you, my love! You did it! 💖✨"
+    </p>
+    <p style="text-align: center; font-size: 1rem; color: #a67c52; margin-bottom: 2rem; direction: rtl; font-family: 'Amiri', serif;">
+      فخورة بيكي يا حبيبتي! أنتِ نجمة في سمائي 🌟
+    </p>
+    
+<div class="grad-gallery" id="grad-gallery" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; padding: 0.5rem;">    </div>
+    
+    <div style="text-align: center; margin-top: 2rem; padding: 1rem; background: rgba(201, 168, 76, 0.1); border-radius: 15px; border: 1px dashed #c9a84c;">
+      <p style="font-size: 1.1rem; color: #7b3f00; margin: 0;">
+        💕 This is just the beginning of your amazing journey! 💕
+      </p>
+      <p style="font-size: 0.9rem; color: #a67c52; margin: 0.5rem 0 0 0; direction: rtl; font-family: 'Amiri', serif;">
+        انتِ تستاهلي كل نجاح في الدنيا يا حبيبتي 🌹
+      </p>
+    </div>
+  </div>
+`;
+
+// ===== NINJA SECTION =====
+const ninjaSection = document.createElement('section');
+ninjaSection.id = 'ninja-section';
+ninjaSection.style.cssText = `
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #2c1810 0%, #1a0f0a 100%);
+  border-radius: 20px;
+  margin: 2rem 1rem;
+  border: 3px solid #ffd700;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+`;
+
+ninjaSection.innerHTML = `
+  <h2 style="color: #ffd700; text-align: center; font-size: 2rem;">
+    🥷 Ninja Mode Activated! 🥷
+  </h2>
+  <p style="color: #ffd700; text-align: center; font-size: 1.2rem; margin-bottom: 2rem;">
+    "Look like a ninja here, I love it!" 😂❤️
+  </p>
+  <div class="ninja-container" id="ninja-container" style="display: flex; justify-content: center;">
+    <div class="media-item ninja-item" style="max-width: 400px; margin: 0 auto; border: 3px solid #ffd700; border-radius: 15px; overflow: hidden; box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);">
+      <img src="${getAssetPath('assets/images/NINJA.png')}" alt="Ninja Fero" style="width: 100%; height: auto; display: block;">
+      <div style="background: rgba(0,0,0,0.8); padding: 1rem; text-align: center; color: #ffd700; font-size: 1.2rem; font-weight: bold;">
+        🥷 NINJA LOVE 🥷
+        <div style="font-size: 0.9rem; color: #ffeb3b; margin-top: 0.5rem;">
+          "You're my favorite ninja!" 💕
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+// ===== INSERT SECTIONS IN CORRECT ORDER =====
+// 1. Insert Grad section after Gallery
+if (gallerySection) {
+  mainContent.insertBefore(gradSection, gallerySection.nextSibling);
+}
+
+// 2. Insert Ninja section after Grad section
+if (gradSection) {
+  mainContent.insertBefore(ninjaSection, gradSection.nextSibling);
+}
+
+// ===== GENERATE GRAD GALLERY =====
+const gradGallery = document.getElementById('grad-gallery');
+if (gradGallery) {
+  gradImages.forEach((img, index) => {
+    const container = document.createElement('div');
+    container.className = 'media-item grad-item';
+    container.style.cssText = `
+    animation: fadeInUp 0.6s ease ${index * 0.2}s both;
+    border: 4px solid #c9a84c;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    transition: all 0.4s ease;
+    cursor: pointer;
+    background: white;
+    max-width: 600px;
+    margin: 0 auto;
+  `;
+    
+    container.addEventListener('mouseenter', () => {
+      container.style.transform = 'scale(1.03) rotate(-1deg)';
+      container.style.boxShadow = '0 15px 40px rgba(201, 168, 76, 0.3)';
+    });
+    container.addEventListener('mouseleave', () => {
+      container.style.transform = 'scale(1) rotate(0deg)';
+      container.style.boxShadow = '0 8px 25px rgba(0,0,0,0.12)';
+    });
+    
+   const imageEl = document.createElement('img');
+    imageEl.src = getAssetPath(`assets/images/${img.src}`);
+    imageEl.alt = img.caption;
+    imageEl.loading = 'lazy';
+    imageEl.style.cssText = `
+      width: 100%;
+      height: auto;
+      max-height: 500px;
+      object-fit: contain;
+      display: block;
+      background: #fdf6f0;
+      padding: 0.5rem;
+`;
+    
+    const caption = document.createElement('div');
+    caption.style.cssText = `
+      padding: 1rem;
+      text-align: center;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.9), white);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #7b3f00;
+      border-top: 2px solid #c9a84c;
+    `;
+    caption.textContent = img.caption;
+    
+    container.appendChild(imageEl);
+    container.appendChild(caption);
+    
+    container.addEventListener('click', () => {
+      showEnhancedConfetti();
+      const gradEmojis = ['🎓', '🎉', '👩‍🎓', '📜', '⭐', '💖', '🥂', '🎊', '🌟', '✨'];
+      const r = container.getBoundingClientRect();
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          const emoji = document.createElement('div');
+          emoji.textContent = gradEmojis[Math.floor(Math.random() * gradEmojis.length)];
+          emoji.style.position = 'fixed';
+          emoji.style.left = (r.left + Math.random() * r.width) + 'px';
+          emoji.style.top = (r.top + Math.random() * r.height) + 'px';
+          emoji.style.fontSize = (Math.random() * 30 + 20) + 'px';
+          emoji.style.pointerEvents = 'none';
+          emoji.style.zIndex = '1000';
+          document.body.appendChild(emoji);
+
+          const animation = emoji.animate([
+            { transform: 'scale(0.5) rotate(0deg) translateY(0px)', opacity: '1' },
+            { transform: `scale(2.5) rotate(${Math.random() * 720}deg) translateY(-200px)`, opacity: '0' }
+          ], {
+            duration: Math.random() * 2000 + 2000,
+            easing: 'ease-out'
+          });
+          animation.onfinish = () => emoji.remove();
+        }, i * 100);
+      }
+    });
+    
+    gradGallery.appendChild(container);
+  });
+}
+
+// ===== NINJA CLICK EFFECT =====
+const ninjaItem = document.querySelector('.ninja-item');
+if (ninjaItem) {
+  ninjaItem.addEventListener('click', () => {
+    showEnhancedConfetti();
+    for (let i = 0; i < 20; i++) {
+      setTimeout(() => {
+        const star = document.createElement('div');
+        const emojis = ['🥷', '⭐', '✨', '💕', '❤️', '🗡️'];
+        star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        star.style.position = 'fixed';
+        star.style.left = Math.random() * window.innerWidth + 'px';
+        star.style.top = Math.random() * window.innerHeight + 'px';
+        star.style.fontSize = (Math.random() * 30 + 20) + 'px';
+        star.style.pointerEvents = 'none';
+        star.style.zIndex = '1000';
+        document.body.appendChild(star);
+        
+        const animation = star.animate([
+          { transform: 'scale(0) rotate(0deg)', opacity: '1' },
+          { transform: `scale(2) rotate(${Math.random() * 720}deg)`, opacity: '0' }
+        ], {
+          duration: Math.random() * 2000 + 2000,
+          easing: 'ease-out'
+        });
+        animation.onfinish = () => star.remove();
+      }, i * 100);
+    }
+  });
+}
+
+// ===== ADD FADE IN ANIMATION =====
+if (!document.getElementById('grad-styles')) {
+  const style = document.createElement('style');
+  style.id = 'grad-styles';
+  style.textContent = `
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// ===== RENDER MAIN GALLERY =====
 const imagesContainer = document.querySelector('.images-container');
 if (imagesContainer) {
   images.forEach((img, index) => {
@@ -665,7 +1099,7 @@ if (imagesContainer) {
     container.style.animationDelay = (index * 0.2) + 's';
     
     const imageEl = document.createElement('img');
-    imageEl.src = getAssetPath(`assets/images/${img.src}`); // FIXED PATH
+    imageEl.src = getAssetPath(`assets/images/${img.src}`);
     imageEl.alt = img.caption;
     imageEl.loading = 'lazy';
     
@@ -678,17 +1112,15 @@ if (imagesContainer) {
     
     container.addEventListener('click', () => {
       showEnhancedConfetti();
-      createInteractiveHeart(
-        container.offsetLeft + container.offsetWidth / 2,
-        container.offsetTop + container.offsetHeight / 2
-      );
+      const r = container.getBoundingClientRect();
+      createInteractiveHeart(r.left + r.width / 2, r.top + r.height / 2);
     });
-    
+
     imagesContainer.appendChild(container);
   });
 }
 
-// ===== Original Videos Gallery (FIXED PATHS) =====
+// ===== ORIGINAL VIDEOS GALLERY =====
 const videos = [
   { 
     file: '21.mp4', 
@@ -724,9 +1156,8 @@ if (videosContainer) {
     container.style.animationDelay = (index * 0.3) + 's';
     
     const videoEl = document.createElement('video');
-    videoEl.src = getAssetPath(`assets/videos/${video.file}`); // FIXED PATH
+    videoEl.src = getAssetPath(`assets/videos/${video.file}`);
     videoEl.controls = true;
-    videoEl.loading = 'lazy';
     videoEl.preload = 'metadata';
     
     const caption = document.createElement('div');
@@ -736,15 +1167,11 @@ if (videosContainer) {
       <div class="caption-description">${video.description}</div>
     `;
     
-    // Add special hover effects for meaningful videos
     container.addEventListener('mouseenter', () => {
-      // Create extra hearts for special moments
+      const r = container.getBoundingClientRect();
       for (let i = 0; i < 5; i++) {
         setTimeout(() => {
-          createInteractiveHeart(
-            container.offsetLeft + Math.random() * container.offsetWidth,
-            container.offsetTop + Math.random() * container.offsetHeight
-          );
+          createInteractiveHeart(r.left + Math.random() * r.width, r.top + Math.random() * r.height);
         }, i * 100);
       }
     });
@@ -754,8 +1181,8 @@ if (videosContainer) {
     
     container.addEventListener('click', () => {
       showEnhancedConfetti();
-      
-      // Special confetti for each video type
+      const cr = container.getBoundingClientRect();
+
       const specialColors = {
         '21.mp4': ['#ff6b6b', '#ffd93d', '#6bcf7f'],
         'black_on_black.mp4': ['#2c3e50', '#34495e', '#7f8c8d'],
@@ -763,15 +1190,14 @@ if (videosContainer) {
         'wifey.mp4': ['#e91e63', '#f8bbd9', '#fce4ec']
       };
       
-      // Create themed hearts based on video
       const colors = specialColors[video.file] || ['#ff6b9d', '#ff8fab', '#ffa8cc'];
       for (let i = 0; i < 8; i++) {
         setTimeout(() => {
           const heart = document.createElement('div');
           heart.textContent = video.emoji;
           heart.style.position = 'fixed';
-          heart.style.left = (container.offsetLeft + Math.random() * container.offsetWidth) + 'px';
-          heart.style.top = (container.offsetTop + Math.random() * container.offsetHeight) + 'px';
+          heart.style.left = (cr.left + Math.random() * cr.width) + 'px';
+          heart.style.top = (cr.top + Math.random() * cr.height) + 'px';
           heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
           heart.style.pointerEvents = 'none';
           heart.style.zIndex = '1000';
@@ -801,10 +1227,7 @@ if (videosContainer) {
   });
 }
 
-// ===== Initialize Everything =====
+// ===== INITIALIZE EVERYTHING =====
 document.addEventListener('DOMContentLoaded', () => {
-  initializeWebsite(); // This already includes typeLoveLetterEnhanced()
+  initializeWebsite();
 });
-
-// Prevent context menu for a more app-like experience
-document.addEventListener('contextmenu', e => e.preventDefault());
