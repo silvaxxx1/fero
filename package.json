@@ -5,5 +5,8 @@
     "build:github": "NODE_ENV=production vite build",
     "preview": "vite preview",
     "deploy": "npm run build:github && gh-pages -d dist"
+  },
+  "devDependencies": {
+    "vite": "^7.1.3"
   }
 }
