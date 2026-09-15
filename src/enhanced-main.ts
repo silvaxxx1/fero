@@ -842,7 +842,6 @@ function createMemoryTimeline() {
   });
 }
 
-// ===== ORIGINAL IMAGES GALLERY =====
 const images = [
   { src: 'baby_fero.jpeg', caption: 'أجمل بداية 💖' },
   { src: 'fero_first.jpeg', caption: 'أول صورة منك 😘' },
@@ -850,7 +849,8 @@ const images = [
   { src: 'fero_sky.jpeg', caption: 'سحر السماء معاك ✨' },
   { src: 'pink_fero.jpeg', caption: 'وردتي الحلوة 🌸' },
   { src: 'sleeping_beauty.jpeg', caption: 'الاميرة النايمة 🌹' },
-  { src: 'wedding.jpg', caption: 'أحلى من العروسة 👰💖' }
+  { src: 'wedding.jpg', caption: 'أحلى من العروسة 👰💖' },
+  { src: 'passport.png', caption: 'حتي صورة الجواز عسل نم نم نممممم 🍯😘' }
 ];
 
 // ===== GET MAIN CONTENT AND GALLERY SECTION ONCE =====

@@ -533,15 +533,15 @@ function createMemoryTimeline() {
         timeline.appendChild(memoryItem);
     });
 }
-// ===== Original Images Gallery (Enhanced) =====
 const images = [
-    { src: 'baby_fero.jpeg', caption: 'أجمل بداية 💖' },
-    { src: 'fero_first.jpeg', caption: 'أول صورة منك 😘' },
-    { src: 'fero_kiss.jpeg', caption: 'أحلى قبلة 💋' },
-    { src: 'fero_sky.jpeg', caption: 'سحر السماء معاك ✨' },
-    { src: 'pink_fero.jpeg', caption: 'وردتي الحلوة 🌸' },
-    { src: 'sleeping_beauty.jpeg', caption: 'الاميرة النايمة 🌹' },
-    { src: 'wedding.jpg', caption: 'أحلى من العروسة 👰💖' }
+  { src: 'baby_fero.jpeg', caption: 'أجمل بداية 💖' },
+  { src: 'fero_first.jpeg', caption: 'أول صورة منك 😘' },
+  { src: 'fero_kiss.jpeg', caption: 'أحلى قبلة 💋' },
+  { src: 'fero_sky.jpeg', caption: 'سحر السماء معاك ✨' },
+  { src: 'pink_fero.jpeg', caption: 'وردتي الحلوة 🌸' },
+  { src: 'sleeping_beauty.jpeg', caption: 'الاميرة النايمة 🌹' },
+  { src: 'wedding.jpg', caption: 'أحلى من العروسة 👰💖' },
+  { src: 'passport.png', caption: 'حتي صورة الجواز عسل نم نم نممممم 🍯😘' }
 ];
 
 const imagesContainer = document.querySelector('.images-container');
