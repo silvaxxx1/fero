@@ -849,7 +849,8 @@ const images = [
   { src: 'fero_kiss.jpeg', caption: 'أحلى قبلة 💋' },
   { src: 'fero_sky.jpeg', caption: 'سحر السماء معاك ✨' },
   { src: 'pink_fero.jpeg', caption: 'وردتي الحلوة 🌸' },
-  { src: 'sleeping_beauty.jpeg', caption: 'الاميرة النايمة 🌹' }
+  { src: 'sleeping_beauty.jpeg', caption: 'الاميرة النايمة 🌹' },
+  { src: 'wedding.jpg', caption: 'أحلى من العروسة 👰💖' }
 ];
 
 // ===== GET MAIN CONTENT AND GALLERY SECTION ONCE =====
